@@ -4,8 +4,7 @@ These services provide a foundation for my way of building websites within docke
 
 ## Prerequisites
 
-Linux / Unix host
-Docker must be installed and configured on the system
+Linux / Unix host, and Docker must be installed and configured on the system
 
 ## Installation
 
@@ -40,7 +39,7 @@ sudo trust extract-compat
 
 ## Usage
 
-See my (Compose Templates)[https://github.com/nevinsm/dockerized-webdev-templates.git] repository for compatible compose files
+See my (Compose Templates)[https://github.com/nevinsm/dockerized-webdev-templates.git] repository for compatible compose files, and (jwilder/nginx-proxy)[https://github.com/jwilder/nginx-proxy] for environment variables related to the proxy. You can also attach a service to mailhog for smtp testing via the `mail` network, and phpmyadmin via the `phpmyadmin` network.
 
 The key components are:
 
@@ -49,6 +48,13 @@ someservice:
   environment:
     VIRTUAL_HOST: mailhog.dev.localhost
     CERT_NAME: server
+  networks:
+    - proxy
+
+networks:
+  proxy:
+    external:
+      name: proxy
 ```
 
 ## Included services
