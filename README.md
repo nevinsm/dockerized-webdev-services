@@ -46,7 +46,7 @@ The key components are:
 ```yaml
 someservice:
   environment:
-    VIRTUAL_HOST: mailhog.dev.localhost
+    VIRTUAL_HOST: something.dev.localhost
     CERT_NAME: server
   networks:
     - proxy
