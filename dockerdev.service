@@ -4,9 +4,9 @@ After=docker.service
 Requires=docker.service
 
 [Service]
-ExecStartPre=-/usr/local/bin/docker-compose -f "${DOCKERDEV_LOCATION}/docker-compose.yaml" down
-ExecStart=/usr/local/bin/docker-compose -f "${DOCKERDEV_LOCATION}/docker-compose.yaml" up
-ExecStop=/usr/local/bin/docker-compose -f "${DOCKERDEV_LOCATION}/docker-compose.yaml" stop
+ExecStartPre=-/usr/bin/docker-compose -f "${DOCKERDEV_LOCATION}/docker-compose.yaml" down
+ExecStart=/usr/bin/docker-compose -f "${DOCKERDEV_LOCATION}/docker-compose.yaml" up
+ExecStop=/usr/bin/docker-compose -f "${DOCKERDEV_LOCATION}/docker-compose.yaml" stop
 
 [Install]
 WantedBy=multi-user.target
