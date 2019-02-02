@@ -1,0 +1,93 @@
+version: '3.7'
+
+services:
+  ca:
+    build: ./certificate-authority
+    image: certificate-authority:latest
+    networks:
+      - proxy-internal
+
+  certs:
+    build: ./certs
+    image: cert-generator:latest
+    networks:
+      - proxy-internal
+    volumes:
+      - ./server-certs:/certs
+    depends_on:
+      - ca
+
+  proxy:
+    image: jwilder/nginx-proxy
+    ports:
+      - '80:80'
+      - '443:443'
+    networks:
+      - proxy-internal
+      - proxy
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - ./server-certs:/etc/nginx/certs:ro
+    depends_on:
+      - certs
+    restart: unless-stopped
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    environment:
+      VIRTUAL_HOST: phpmyadmin.dev.localhost
+      CERT_NAME: server
+      PMA_ARBITRARY: 1
+      PMA_ABSOLUTE_URI: https://phpmyadmin.dev.localhost/
+    volumes:
+      - ./phpmyadmin/config.user.inc.php:/etc/phpmyadmin/config.user.inc.php:ro
+      - ./phpmyadmin/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini:ro
+    networks:
+      - phpmyadmin
+      - proxy
+    depends_on:
+      - proxy
+    restart: unless-stopped
+
+  swagger-editor:
+    image: swaggerapi/swagger-editor:latest
+    environment:
+      VIRTUAL_HOST: swagger.dev.localhost
+      VIRTUAL_PROTO: http
+      VIRTUAL_PORT: 8080
+      CERT_NAME: server
+      PORT: 443
+    networks:
+      - proxy
+    depends_on:
+      - proxy
+    restart: unless-stopped
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    expose:
+      - 1025
+      - 8025
+    environment:
+      VIRTUAL_HOST: mailhog.dev.localhost
+      VIRTUAL_PROTO: http
+      VIRTUAL_PORT: 8025
+      CERT_NAME: server
+    networks:
+      - proxy
+      - mail
+    depends_on:
+      - proxy
+    restart: unless-stopped
+
+networks:
+  mail:
+    external:
+      name: mail
+  phpmyadmin:
+    external:
+      name: phpmyadmin
+  proxy-internal:
+  proxy:
+    external:
+      name: proxy
